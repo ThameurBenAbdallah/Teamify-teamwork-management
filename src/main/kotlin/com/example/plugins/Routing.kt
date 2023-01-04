@@ -11,7 +11,14 @@ fun Application.configureRouting() {
     routing {
 
 
-        articleRouting()
+        userRouting()
+        issueRouting()
+        milestoneRouting()
+        projectRouting()
+        subprojectRouting()
+        taskRouting()
+        teamMemberRouting()
+        teamRouting()
         static("/static") {
             resources("files")
         }

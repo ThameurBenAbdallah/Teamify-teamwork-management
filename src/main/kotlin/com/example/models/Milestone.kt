@@ -8,9 +8,10 @@ data class Milestone(
     val id: Int,
     val title: String,
     val startTime: String,
+    val endTime: String,
     val dueTime: String,
     val subprojectId: Int,
-    val description: String,
+    val description: String
 )
 
 object Milestones : Table() {
@@ -19,7 +20,7 @@ object Milestones : Table() {
     val subprojectId = integer("project_id").references(Projects.id)
     val startTime = varchar("start_time",100)
     val endTime = varchar("end_time",100)
-    val statue = varchar("statue", 100)
+    val dueTime = varchar("due_time",100)
     val description = varchar("description", 300)
 
 

@@ -2,20 +2,18 @@ package com.example.dao
 
 import com.example.dao.DatabaseFactory.dbQuery
 import com.example.models.*
-import com.example.models.Projects.statue
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 
 class DAOFacadeImpl : DAOFacade {
-    // Projects:
+
+    // Projects------------------------------------------------------------------------------------------
     private fun resultRowToProject(row: ResultRow) = Project(
-        id = row[Articles.id],
-        title = row[Articles.title],
-        dueTime = row[Projects.dueTime],
+        id = row[Projects.id],
+        title = row[Projects.title],
         endTime = row[Projects.endTime],
         startTime = row[Projects.startTime],
-        statue = row[Projects.statue],
         description = row[Projects.description]
     )
 
@@ -33,18 +31,14 @@ class DAOFacadeImpl : DAOFacade {
 
     override suspend fun addNewProject(
         title: String,
-        dueTime: String,
         endTime: String,
         startTime: String,
-        statue: String,
         description: String
     ): Project? = dbQuery {
         val insertStatement = Projects.insert {
             it[Projects.title] = title
-            it[Projects.dueTime] = dueTime
             it[Projects.endTime] = endTime
             it[Projects.startTime] = startTime
-            it[Projects.statue] = statue
             it[Projects.description] = description
         }
         insertStatement.resultedValues?.singleOrNull()?.let(::resultRowToProject)
@@ -53,64 +47,107 @@ class DAOFacadeImpl : DAOFacade {
     override suspend fun editProject(
         id: Int,
         title: String,
-        dueTime: String,
         endTime: String,
         startTime: String,
-        statue: String,
         description: String
     ): Boolean = dbQuery {
         Projects.update({ Projects.id eq id }) {
             it[Projects.title] = title
-            it[Projects.dueTime] = dueTime
             it[Projects.startTime] = startTime
             it[Projects.endTime] = endTime
-            it[Projects.statue] = statue
             it[Projects.description] = description
         } > 0
     }
 
     override suspend fun deleteProject(id: Int): Boolean = dbQuery {
-        Projects.deleteWhere { Articles.id eq id } > 0
+        Projects.deleteWhere { Projects.id eq id } > 0
     }
 
-    override suspend fun allMilestones(): List<Milestone> {
-        TODO("Not yet implemented")
+    //Milestones ----------------------------------------------------------------------------------------
+    private fun resultRowToMilestone(row: ResultRow) = Milestone(
+        id = row[Milestones.id],
+        title = row[Milestones.title],
+        subprojectId = row[Milestones.subprojectId],
+        startTime = row[Milestones.startTime],
+        endTime = row[Milestones.endTime],
+        dueTime = row[Milestones.dueTime],
+        description = row[Projects.description]
+    )
+
+    override suspend fun allMilestones(): List<Milestone> = dbQuery {
+        Milestones.selectAll().map(::resultRowToMilestone)
     }
 
-    override suspend fun milestone(id: Int): Milestone? {
-        TODO("Not yet implemented")
+    override suspend fun milestone(id: Int): Milestone? = dbQuery {
+        Milestones
+            .select { Milestones.id eq id }
+            .map(::resultRowToMilestone)
+            .singleOrNull()
     }
 
     override suspend fun addNewMilestone(
         title: String,
         startTime: String,
+        endTime: String,
         dueTime: String,
         subprojectId: Int,
         description: String
-    ): Milestone? {
-        TODO("Not yet implemented")
+    ): Milestone? = dbQuery {
+        val insertStatement = Milestones.insert {
+            it[Milestones.title] = title
+            it[Milestones.startTime] = startTime
+            it[Milestones.endTime] = endTime
+            it[Milestones.dueTime] = dueTime
+            it[Milestones.subprojectId] = subprojectId
+            it[Milestones.description] = description
+        }
+        insertStatement.resultedValues?.singleOrNull()?.let(::resultRowToMilestone)
     }
+
 
     override suspend fun editMilestone(
         id: Int,
         title: String,
         startTime: String,
+        endTime: String,
         dueTime: String,
+        subprojectId: Int,
         description: String
-    ): Boolean {
-        TODO("Not yet implemented")
+    ): Boolean = Milestones.update({ Milestones.id eq id }) {
+        it[Milestones.title] = title
+        it[Milestones.startTime] = startTime
+        it[Milestones.endTime] = endTime
+        it[Milestones.dueTime] = dueTime
+        it[Milestones.subprojectId] = subprojectId
+        it[Milestones.description] = description
+    } > 0
+
+    override suspend fun deleteMilestone(id: Int): Boolean = dbQuery {
+        Milestones.deleteWhere { Milestones.id eq id } > 0
     }
 
-    override suspend fun deleteMilestone(id: Int): Boolean {
-        TODO("Not yet implemented")
+    //Users------------------------------------------------------------------------------------
+
+    private fun resultRowToUser(row: ResultRow) = User(
+        id = row[Users.id],
+        fullName = row[Users.fullName],
+        email = row[Users.email],
+        password = row[Users.password],
+        isAdmin = row[Users.isAdmin],
+        isTeamMember = row[Users.isTeamMember],
+        isManager = row[Users.isManager]
+    )
+
+    override suspend fun allUsers(): List<User> = dbQuery {
+        Users.selectAll().map(::resultRowToUser)
     }
 
-    override suspend fun allUsers(): List<User> {
-        TODO("Not yet implemented")
-    }
 
-    override suspend fun user(id: Int): User? {
-        TODO("Not yet implemented")
+    override suspend fun user(id: Int): User? = dbQuery {
+        Users
+            .select { Users.id eq id }
+            .map(::resultRowToUser)
+            .singleOrNull()
     }
 
     override suspend fun addNewUser(
@@ -118,9 +155,19 @@ class DAOFacadeImpl : DAOFacade {
         fullName: String,
         password: String,
         isTeamMember: Boolean,
-        isAdmin: Boolean
-    ): User? {
-        TODO("Not yet implemented")
+        isAdmin: Boolean,
+        isManager: Boolean
+    ): User? = dbQuery {
+        val insertStatement = Users.insert {
+            it[Users.fullName] = fullName
+            it[Users.email] = email
+            it[Users.isAdmin] = isAdmin
+            it[Users.isTeamMember] = isTeamMember
+            it[Users.password] = password
+            it[Users.isManager] = isManager
+
+        }
+        insertStatement.resultedValues?.singleOrNull()?.let(::resultRowToUser)
     }
 
     override suspend fun editUser(
@@ -129,23 +176,27 @@ class DAOFacadeImpl : DAOFacade {
         fullName: String,
         password: String,
         isTeamMember: Boolean,
-        isAdmin: Boolean
-    ): Boolean {
-        TODO("Not yet implemented")
+        isAdmin: Boolean,
+        isManager: Boolean
+    ): Boolean = Users.update({ Users.id eq id }) {
+        it[Users.fullName] = fullName
+        it[Users.email] = email
+        it[Users.isAdmin] = isAdmin
+        it[Users.isTeamMember] = isTeamMember
+        it[Users.password] = password
+        it[Users.isManager] = isManager
+    } > 0
+
+    override suspend fun deleteUser(id: Int): Boolean = dbQuery {
+        Users.deleteWhere { Users.id eq id } > 0
     }
 
-    override suspend fun deleteUser(id: Int): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    //Subproject:
+    //Subproject------------------------------------------------------------------------------------------
 
     private fun resultRowToSubproject(row: ResultRow) = Subproject(
-        id = row[Articles.id],
-        title = row[Articles.title],
+        id = row[Subprojects.id],
+        title = row[Subprojects.title],
         endTime = row[Subprojects.endTime],
-        startTime = row[Subprojects.startTime],
-        statue = row[Subprojects.statue],
         projectId = row[Subprojects.projectId]
 
     )
@@ -164,62 +215,308 @@ class DAOFacadeImpl : DAOFacade {
 
     override suspend fun addNewSubproject(
         title: String,
-        endTime: String,
-        startTime: String,
-        statue: String,
-        projectId: Int
+        projectId: Int,
+        endTime: String
     ): Subproject? = dbQuery {
         val insertStatement = Subprojects.insert {
             it[Subprojects.title] = title
-            it[Subprojects.endTime] = endTime
-            it[Subprojects.startTime] = startTime
-            it[Subprojects.statue] = statue
             it[Subprojects.projectId] = projectId
         }
         insertStatement.resultedValues?.singleOrNull()?.let(::resultRowToSubproject)
     }
 
-    override suspend fun editSubproject(id: Int, title: String, dueTime: String): Boolean = dbQuery {
+    override suspend fun editSubproject(id: Int, title: String, endTime: String): Boolean = dbQuery {
         Subprojects.update({ Subprojects.id eq id }) {
             it[Subprojects.title] = title
-            it[Subprojects.startTime] = startTime
             it[Subprojects.endTime] = endTime
-            it[Subprojects.statue] = statue
         } > 0
     }
 
     override suspend fun deleteSubproject(id: Int): Boolean = dbQuery {
-        Subprojects.deleteWhere { Articles.id eq id } > 0
+        Subprojects.deleteWhere { Subprojects.id eq id } > 0
+    }
+// Teams -------------------------------------------------------------------------
+
+    private fun resultRowToTeam(row: ResultRow) = Team(
+        id = row[Subprojects.id],
+        name = row[Subprojects.title]
+    )
+
+    override suspend fun allTeams(): List<Team> = dbQuery {
+        Teams.selectAll().map(::resultRowToTeam)
+
     }
 
-    override suspend fun allTeams(): List<Team> {
-        TODO("Not yet implemented")
+    override suspend fun team(id: Int): Team? = dbQuery {
+        Teams
+            .select { Teams.id eq id }
+            .map(::resultRowToTeam)
+            .singleOrNull()
     }
 
-    override suspend fun team(id: Int): Team? {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun addNewTeam(name: String, leader: Int): Team? {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun editTeam(id: Int, title: String, body: String): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun deleteTeam(id: Int): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    //Milestones:
-
-
-    val dao: DAOFacade = DAOFacadeImpl().apply {
-        runBlocking {
-
-            }
+    override suspend fun addNewTeam(name: String): Team? = dbQuery {
+        val insertStatement = Teams.insert {
+            it[Teams.name] = name
         }
+        insertStatement.resultedValues?.singleOrNull()?.let(::resultRowToTeam)
+    }
+
+    override suspend fun editTeam(id: Int, name: String): Boolean = dbQuery {
+        Teams.update({ Teams.id eq id }) {
+            it[Teams.name] = name
+        } > 0
+    }
+
+    override suspend fun deleteTeam(id: Int): Boolean = dbQuery {
+        Teams.deleteWhere { Teams.id eq id } > 0
+    }
+// Tasks ---------------------------------------------------------------------------------------
 
 
+    private fun resultRowToTask(row: ResultRow): Task {
+        val teamMember = runBlocking { teamMember(row[Tasks.teamMemberId], row[Tasks.teamId]) }
+        val milestone = runBlocking { milestone(row[Tasks.milestoneId]) }
+
+        return Task(
+            id = row[Tasks.id],
+            milestone = milestone!!,
+            teamMember = teamMember!!,
+            startTime = row[Tasks.startTime],
+            dueTime = row[Tasks.dueTime],
+            endTime = row[Tasks.endTime],
+            description = row[Tasks.description],
+            priority = row[Tasks.priority],
+            status = row[Tasks.status]
+        )
+    }
+
+    override suspend fun allTasks(): List<Task> = dbQuery {
+        Tasks.selectAll().map(::resultRowToTask)
+
+    }
+
+    override suspend fun task(id: Int): Task? = dbQuery {
+        Tasks
+            .select { Tasks.id eq id }
+            .map(::resultRowToTask)
+            .singleOrNull()
+    }
+
+    override suspend fun addNewTask(
+        milestoneId: Int,
+        teamMemberId: Int,
+        teamId: Int,
+        joinDate: String,
+        startTime: String,
+        dueTime: String,
+        endTime: String,
+        description: String,
+        priority: String,
+        status: String
+    ): Task? {
+        val insertStatement = Tasks.insert {
+            it[Tasks.milestoneId] = milestoneId
+            it[Tasks.teamMemberId] = teamMemberId
+            it[Tasks.teamId] = teamId
+            it[Tasks.joinDate] = joinDate
+            it[Tasks.startTime] = startTime
+            it[Tasks.dueTime] = dueTime
+            it[Tasks.endTime] = endTime
+            it[Tasks.description] = description
+            it[Tasks.priority] = priority
+            it[Tasks.status] = status
+        }
+        return insertStatement.resultedValues?.singleOrNull()?.let(::resultRowToTask)
+
+    }
+
+    override suspend fun editTask(
+        id: Int,
+        milestoneId: Int,
+        teamMemberId: Int,
+        teamId: Int,
+        joinDate: String,
+        startTime: String,
+        dueTime: String,
+        endTime: String,
+        description: String,
+        priority: String,
+        status: String
+    ): Boolean = dbQuery {
+        Tasks.update({ Tasks.id eq id }) {
+            it[Tasks.milestoneId] = milestoneId
+            it[Tasks.teamMemberId] = teamMemberId
+            it[Tasks.teamId] = teamId
+            it[Tasks.joinDate] = joinDate
+            it[Tasks.startTime] = startTime
+            it[Tasks.endTime] = endTime
+            it[Tasks.description] = description
+            it[Tasks.priority] = priority
+            it[Tasks.status] = status
+
+
+        } > 0
+    }
+
+
+    override suspend fun deleteTask(id: Int): Boolean = dbQuery {
+        Tasks.deleteWhere { Tasks.id eq id } > 0
+    }
+
+    //Team members -----------------------------------------------------------------------------------
+
+    private fun resultRowToTeamMember(row: ResultRow) = TeamMember(
+        userId = row[TeamMembers.userId],
+        teamId = row[TeamMembers.userId],
+        role = row[TeamMembers.role],
+        isTeamLeader = row[TeamMembers.isTeamLeader],
+        joinDate = row[TeamMembers.joinDate],
+        leaveDate = row[TeamMembers.leaveDate]
+    )
+
+    override suspend fun allTeamMembers(): List<TeamMember> = dbQuery {
+        TeamMembers.selectAll().map(::resultRowToTeamMember)
+
+    }
+
+    override suspend fun teamMember(userId: Int, teamId: Int): TeamMember? = dbQuery {
+        TeamMembers
+            .select { TeamMembers.userId eq userId }
+            .map(::resultRowToTeamMember)
+            .singleOrNull()
+    }
+
+    override suspend fun teamMemberByTeam(teamId: Int): TeamMember? = dbQuery {
+        TeamMembers
+            .select { TeamMembers.teamId eq teamId }
+            .map(::resultRowToTeamMember)
+            .singleOrNull()
+    }
+
+    override suspend fun addNewTeamMember(
+        userId: Int,
+        teamId: Int,
+        role: String,
+        isTeamLeader: Boolean,
+        joinDate: String,
+        leaveDate: String
+    ): TeamMember? = dbQuery {
+        val insertStatement = TeamMembers.insert {
+            it[TeamMembers.teamId] = teamId
+            it[TeamMembers.userId] = userId
+            it[TeamMembers.role] = role
+            it[TeamMembers.isTeamLeader] = isTeamLeader
+            it[TeamMembers.joinDate] = joinDate
+            it[TeamMembers.leaveDate] = leaveDate
+
+
+        }
+        insertStatement.resultedValues?.singleOrNull()?.let(::resultRowToTeamMember)
+    }
+
+    override suspend fun editTeamMember(
+        userId: Int,
+        teamId: Int,
+        role: String,
+        isTeamLeader: Boolean,
+        joinDate: String,
+        leaveDate: String
+    ): Boolean = dbQuery {
+        TeamMembers.update({ TeamMembers.userId eq userId }) {
+            it[TeamMembers.teamId] = teamId
+            it[TeamMembers.role] = role
+            it[TeamMembers.isTeamLeader] = isTeamLeader
+            it[TeamMembers.joinDate] = joinDate
+            it[TeamMembers.leaveDate] = leaveDate
+
+        } > 0
+    }
+
+    override suspend fun deleteTeamMember(userId: Int, teamId: Int, joinDate: String): Boolean = dbQuery {
+        TeamMembers.deleteWhere { TeamMembers.userId eq userId } > 0
+    }
+
+    override suspend fun hasLeftTeam(userId: Int, teamId: Int): Boolean {
+        return dbQuery {
+            TeamMembers.select { (TeamMembers.userId eq userId) and (TeamMembers.teamId eq teamId) }
+                .mapNotNull { it[TeamMembers.leaveDate] }
+                .singleOrNull() != ""
+        }
+    }
+
+    override suspend fun leaveTeam(userId: Int, teamId: Int, joinDate: String, leaveDate: String): Boolean {
+        return dbQuery {
+            TeamMembers.update({ (TeamMembers.userId eq userId) and (TeamMembers.teamId eq teamId) and (TeamMembers.joinDate eq joinDate) }) {
+                it[this.leaveDate] = leaveDate
+            } > 0
+        }
+    }
+
+    private fun resultRowToIssue(row: ResultRow): Issue {
+        return Issue(
+            id = row[Issues.id],
+            taskId = row[Issues.taskId],
+            title = row[Issues.title],
+            description = row[Issues.description],
+            status = row[Issues.status],
+            priority = row[Issues.priority],
+            assigneeId = row[Issues.assigneeId]
+        )
+    }
+
+    override suspend fun allIssues(): List<Issue> = dbQuery {
+        Issues.selectAll().map(::resultRowToIssue)
+    }
+
+    override suspend fun issue(id: Int): Issue? = dbQuery {
+        Issues
+            .select { Issues.id eq id }
+            .map(::resultRowToIssue)
+            .singleOrNull()
+    }
+
+    override suspend fun addNewIssue(
+        taskId: Int,
+        title: String,
+        description: String,
+        status: String,
+        priority: String,
+        assigneeId: Int
+    ): Issue? = dbQuery {
+        val insertStatement = Issues.insert {
+            it[Issues.taskId] = taskId
+            it[Issues.title] = title
+            it[Issues.description] = description
+            it[Issues.status] = status
+            it[Issues.priority] = priority
+            it[Issues.assigneeId] = assigneeId
+        }
+        insertStatement.resultedValues?.singleOrNull()?.let(::resultRowToIssue)
+    }
+
+    override suspend fun editIssue(
+        id: Int,
+        taskId: Int,
+        title: String,
+        description: String,
+        status: String,
+        priority: String,
+        assigneeId: Int
+    ): Boolean = dbQuery {
+        Issues.update({ Issues.id eq id }) {
+            it[Issues.taskId] = taskId
+            it[Issues.title] = title
+            it[Issues.description] = description
+            it[Issues.status] = status
+            it[Issues.priority] = priority
+            it[Issues.assigneeId] = assigneeId
+
+        } > 0
+
+    }
+
+    override suspend fun deleteIssue(id: Int): Boolean = dbQuery {
+        Issues.deleteWhere { Issues.id eq id } > 0
+    }
 }
+val dao: DAOFacade = DAOFacadeImpl()

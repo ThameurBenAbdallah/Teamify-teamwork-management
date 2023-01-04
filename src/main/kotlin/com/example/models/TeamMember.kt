@@ -7,13 +7,17 @@ data class TeamMember(
     val teamId: Int,
     val role: String,
     val isTeamLeader: Boolean,
+    val joinDate: String,
+    val leaveDate: String
 )
 
 object TeamMembers : Table() {
 
-    val userId = integer("id").references(Users.id)
+    val userId = integer("user_id").references(Users.id).uniqueIndex()
     val teamId = integer("team_id").references(Teams.id)
     val role = varchar("role", 100)
     val isTeamLeader = bool("is_team_leader")
-    override val primaryKey = PrimaryKey(userId)
+    val leaveDate = varchar("leave_date",100)
+    val joinDate = varchar("join_date",100)
+    override val primaryKey = PrimaryKey(userId,teamId, joinDate)
 }
