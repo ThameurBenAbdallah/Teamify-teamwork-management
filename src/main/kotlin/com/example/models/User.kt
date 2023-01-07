@@ -11,7 +11,8 @@ data class User(
     val fullName: String,
     val password: String,
     val isTeamMember: Boolean,
-    val isAdmin: Boolean
+    val isAdmin: Boolean,
+    val isManager: Boolean
 )
 
 object Users : Table() {
@@ -21,5 +22,6 @@ object Users : Table() {
     val password = varchar("password", 300)
     val isTeamMember = bool("is_team_member")
     val isAdmin = bool("is_admin")
+    val isManager = bool("is_manager")
     override val primaryKey = PrimaryKey(id)
 }
