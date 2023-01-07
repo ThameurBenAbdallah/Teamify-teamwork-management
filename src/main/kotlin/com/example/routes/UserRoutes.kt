@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 
 
 import com.example.dao.dao
+import com.example.models.User
 
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -12,15 +13,8 @@ import io.ktor.server.routing.*
 
 
 fun Route.userRouting() {
-    data class UserRequest(
-        val email: String,
-        val fullName: String,
-        val password: String,
-        val isTeamMember: Boolean,
-        val isAdmin: Boolean,
-        val isManager: Boolean
-    )
-    route("/user") {
+
+      route("/user") {
         get {
             val allUsers = dao.allUsers()
             if (allUsers.isNotEmpty()) {
@@ -39,21 +33,21 @@ fun Route.userRouting() {
                     "No customer with id $id",
                     status = HttpStatusCode.NotFound
                 )
-            call.respond(user)
+            call.receive<User>()
 
         }
         post {
 
-            val userRequest = call.receive<UserRequest>()
+            val user = call.receive<User>()
 
-            dao.addNewUser(
-                email = userRequest.email,
-                fullName = userRequest.fullName,
-                password = userRequest.password,
-                isTeamMember = userRequest.isTeamMember,
-                isAdmin = userRequest.isAdmin,
-                isManager = userRequest.isManager
-            )
+            val newUser= dao.addNewUser(
+                email = user.email,
+                fullName = user.fullName,
+                password = user.password,
+                isTeamMember = user.isTeamMember,
+                isAdmin = user.isAdmin,
+                isManager = user.isManager
+            )?: return@post call.respond(HttpStatusCode.BadRequest, "Error adding new user")
             call.respondText("User added correctly", status = HttpStatusCode.Created)
 
         }
@@ -68,16 +62,16 @@ fun Route.userRouting() {
         }
         put("{id?}") {
             val id = call.parameters["id"]?.toIntOrNull() ?: return@put call.respond(HttpStatusCode.BadRequest)
-            val userRequest = call.receive<UserRequest>()
+            val user = call.receive<User>()
 
             if (dao.editUser(
                 id = id,
-                email = userRequest.email,
-                fullName = userRequest.fullName,
-                password = userRequest.password,
-                isTeamMember = userRequest.isTeamMember,
-                isAdmin = userRequest.isAdmin,
-                isManager = userRequest.isManager
+                email = user.email,
+                fullName = user.fullName,
+                password = user.password,
+                isTeamMember = user.isTeamMember,
+                isAdmin = user.isAdmin,
+                isManager = user.isManager
             )
             )
             call.respondText("User edited correctly", status = HttpStatusCode.OK)

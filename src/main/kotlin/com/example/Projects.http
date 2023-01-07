@@ -1,0 +1,29 @@
+GET http://127.0.0.1:5000/project
+Content-Type: application/json
+
+
+
+
+###
+#class Project(val id: Int,
+#                   val title: String,
+#                   val startTime: String,
+#                   val endTime: String,
+#                   val description: String
+#                   )
+POST http://127.0.0.1:5000/projects
+Content-Type: application/json
+
+
+{
+  "id": "100",
+  "title": "electrification groupe chermiti",
+  "startTime": "01-01-2023",
+  "endTime": "28-02-2023",
+  "description": "200m LHTA + poste mono 25kva + 100 LBT"
+
+}
+
+###
+
+

@@ -1,0 +1,18 @@
+POST http://127.0.0.1:5000/user
+Content-Type: application/json
+
+{
+  "id": "100",
+  "email": "tham@gmail.com",
+  "fullName": "Tham B Abdallah",
+  "password": "donttellanybody",
+  "isTeamMember": true,
+  "isAdmin": false,
+  "isManager": false
+
+}
+
+
+###
+
+

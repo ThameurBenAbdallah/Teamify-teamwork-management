@@ -274,7 +274,7 @@ class DAOFacadeImpl : DAOFacade {
 
 
     private fun resultRowToTask(row: ResultRow): Task {
-        val teamMember = runBlocking { teamMember(row[Tasks.teamMemberId], row[Tasks.teamId]) }
+        val teamMember = runBlocking { teamMember(row[Tasks.teamMemberId]) }
         val milestone = runBlocking { milestone(row[Tasks.milestoneId]) }
 
         return Task(
@@ -317,8 +317,6 @@ class DAOFacadeImpl : DAOFacade {
         val insertStatement = Tasks.insert {
             it[Tasks.milestoneId] = milestoneId
             it[Tasks.teamMemberId] = teamMemberId
-            it[Tasks.teamId] = teamId
-            it[Tasks.joinDate] = joinDate
             it[Tasks.startTime] = startTime
             it[Tasks.dueTime] = dueTime
             it[Tasks.endTime] = endTime
@@ -334,8 +332,6 @@ class DAOFacadeImpl : DAOFacade {
         id: Int,
         milestoneId: Int,
         teamMemberId: Int,
-        teamId: Int,
-        joinDate: String,
         startTime: String,
         dueTime: String,
         endTime: String,
@@ -346,8 +342,6 @@ class DAOFacadeImpl : DAOFacade {
         Tasks.update({ Tasks.id eq id }) {
             it[Tasks.milestoneId] = milestoneId
             it[Tasks.teamMemberId] = teamMemberId
-            it[Tasks.teamId] = teamId
-            it[Tasks.joinDate] = joinDate
             it[Tasks.startTime] = startTime
             it[Tasks.endTime] = endTime
             it[Tasks.description] = description
@@ -366,8 +360,9 @@ class DAOFacadeImpl : DAOFacade {
     //Team members -----------------------------------------------------------------------------------
 
     private fun resultRowToTeamMember(row: ResultRow) = TeamMember(
+        id= row[TeamMembers.id],
         userId = row[TeamMembers.userId],
-        teamId = row[TeamMembers.userId],
+        teamId = row[TeamMembers.teamId],
         role = row[TeamMembers.role],
         isTeamLeader = row[TeamMembers.isTeamLeader],
         joinDate = row[TeamMembers.joinDate],
@@ -379,16 +374,16 @@ class DAOFacadeImpl : DAOFacade {
 
     }
 
-    override suspend fun teamMember(userId: Int, teamId: Int): TeamMember? = dbQuery {
+    override suspend fun teamMember(id: Int): TeamMember? = dbQuery {
         TeamMembers
-            .select { TeamMembers.userId eq userId }
+            .select { TeamMembers.id eq id }
             .map(::resultRowToTeamMember)
             .singleOrNull()
     }
 
     override suspend fun teamMemberByTeam(teamId: Int): TeamMember? = dbQuery {
         TeamMembers
-            .select { TeamMembers.teamId eq teamId }
+            .select { TeamMembers.teamId eq teamId}
             .map(::resultRowToTeamMember)
             .singleOrNull()
     }
@@ -415,6 +410,7 @@ class DAOFacadeImpl : DAOFacade {
     }
 
     override suspend fun editTeamMember(
+        id: Int,
         userId: Int,
         teamId: Int,
         role: String,
@@ -422,7 +418,7 @@ class DAOFacadeImpl : DAOFacade {
         joinDate: String,
         leaveDate: String
     ): Boolean = dbQuery {
-        TeamMembers.update({ TeamMembers.userId eq userId }) {
+        TeamMembers.update({ TeamMembers.id eq id }) {
             it[TeamMembers.teamId] = teamId
             it[TeamMembers.role] = role
             it[TeamMembers.isTeamLeader] = isTeamLeader
@@ -432,21 +428,21 @@ class DAOFacadeImpl : DAOFacade {
         } > 0
     }
 
-    override suspend fun deleteTeamMember(userId: Int, teamId: Int, joinDate: String): Boolean = dbQuery {
+    override suspend fun deleteTeamMember(id: Int): Boolean = dbQuery {
         TeamMembers.deleteWhere { TeamMembers.userId eq userId } > 0
     }
 
-    override suspend fun hasLeftTeam(userId: Int, teamId: Int): Boolean {
+    override suspend fun hasLeftTeam(userId: Int, teamId: Int, joinDate: String): Boolean {
         return dbQuery {
-            TeamMembers.select { (TeamMembers.userId eq userId) and (TeamMembers.teamId eq teamId) }
+            TeamMembers.select { (TeamMembers.userId eq userId) and (TeamMembers.teamId eq teamId) and (TeamMembers.joinDate eq joinDate) }
                 .mapNotNull { it[TeamMembers.leaveDate] }
                 .singleOrNull() != ""
         }
     }
 
-    override suspend fun leaveTeam(userId: Int, teamId: Int, joinDate: String, leaveDate: String): Boolean {
+    override suspend fun leaveTeam(id: Int, leaveDate: String): Boolean {
         return dbQuery {
-            TeamMembers.update({ (TeamMembers.userId eq userId) and (TeamMembers.teamId eq teamId) and (TeamMembers.joinDate eq joinDate) }) {
+            TeamMembers.update({ (TeamMembers.id eq id) }) {
                 it[this.leaveDate] = leaveDate
             } > 0
         }

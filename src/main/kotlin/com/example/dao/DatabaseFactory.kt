@@ -14,8 +14,8 @@ object DatabaseFactory {
         val passWord = ""
         val database = Database.connect(jdbcURL, driverClassName,user,passWord)
         transaction(database) {
-            SchemaUtils.drop(Users,Projects,Milestones,Subprojects,Tasks,Teams,TeamsProjects,TeamMembers)
-            SchemaUtils.create(Users,Projects,Milestones,Subprojects,Tasks,Teams,TeamsProjects,TeamMembers)
+
+            SchemaUtils.create(Users,Projects,Milestones,Subprojects,Teams,TeamsProjects,TeamMembers)
 
         }
     }

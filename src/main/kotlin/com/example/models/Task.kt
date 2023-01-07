@@ -20,11 +20,9 @@ object Tasks : Table("tasks") {
     val dueTime = varchar("due_time", 100)
     val endTime = varchar("end_time", 100)
     val milestoneId = integer("milestone_id") references (Milestones.id)
-    val teamMemberId = integer("team_member_id") references (TeamMembers.userId)
-    val teamId = integer("team_id") references (TeamMembers.teamId)
-    val joinDate = varchar("join_date",100) references (TeamMembers.joinDate)
+    val teamMemberId = integer("team_member_id") references (TeamMembers.id)
     val title = varchar("title", 300)
-    val status = varchar("statue", 100)
+    val status = varchar("status", 100)
     val description = varchar("description", 300)
     val priority = varchar("priority", 500)
 

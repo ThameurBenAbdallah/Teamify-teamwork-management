@@ -86,8 +86,6 @@ interface DAOFacade {
         id: Int,
         milestoneId: Int,
         teamMemberId: Int,
-        teamId: Int,
-        joinDate: String,
         startTime: String,
         dueTime: String,
         endTime: String,
@@ -99,7 +97,7 @@ interface DAOFacade {
     suspend fun deleteTask(id: Int): Boolean
 
     suspend fun allTeamMembers(): List<TeamMember>
-    suspend fun teamMember(userId: Int, teamId: Int): TeamMember?
+    suspend fun teamMember(id: Int): TeamMember?
     suspend fun teamMemberByTeam(teamId: Int): TeamMember?
     suspend fun addNewTeamMember(
         userId: Int,
@@ -111,6 +109,7 @@ interface DAOFacade {
     ): TeamMember?
 
     suspend fun editTeamMember(
+        id: Int,
         userId: Int,
         teamId: Int,
         role: String,
@@ -119,11 +118,11 @@ interface DAOFacade {
         leaveDate: String
     ): Boolean
 
-    suspend fun deleteTeamMember(userId: Int, teamId: Int, joinDate: String): Boolean
+    suspend fun deleteTeamMember(id: Int,): Boolean
 
-    suspend fun hasLeftTeam(userId: Int, teamId: Int): Boolean
+    suspend fun hasLeftTeam(userId: Int, teamId: Int, joinDate: String): Boolean
 
-    suspend fun leaveTeam(userId: Int, teamId: Int, joinDate: String, leaveDate: String): Boolean
+    suspend fun leaveTeam(id: Int, leaveDate: String): Boolean
 
         suspend fun allIssues(): List<Issue>
         suspend fun issue(id: Int): Issue?

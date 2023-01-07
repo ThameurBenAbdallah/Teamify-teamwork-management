@@ -33,20 +33,18 @@ fun Route.teamMemberRouting() {
                 call.respond(HttpStatusCode.Created, it)
             } ?: call.respond(HttpStatusCode.BadRequest, "Invalid team member")
         }
-        // PUT /team-members/{userId}/{teamId} - update an existing team member
-        put {
-            val userId = call.parameters["userId"]?.toIntOrNull() ?: return@put call.respond(
+        // PUT /team-members/{id} - update an existing team member
+        put("/{id}") {
+            val id = call.parameters["id"]?.toIntOrNull() ?: return@put call.respond(
                 HttpStatusCode.BadRequest,
-                "Invalid user ID"
+                "Invalid team member ID"
             )
-            val teamId = call.parameters["teamId"]?.toIntOrNull() ?: return@put call.respond(
-                HttpStatusCode.BadRequest,
-                "Invalid team ID"
-            )
+
             val teamMember = call.receive<TeamMember>()
             if (dao.editTeamMember(
-                    userId,
-                    teamId,
+                    id,
+                    teamMember.userId,
+                    teamMember.teamId,
                     teamMember.role,
                     teamMember.isTeamLeader,
                     teamMember.joinDate,
@@ -58,21 +56,14 @@ fun Route.teamMemberRouting() {
                 call.respond(HttpStatusCode.NotFound, "Team member not found")
             }
         }
-        // DELETE /team-members/{userId}/{teamId}/{joinDate} - delete an existing team member
-        delete {
-            val userId = call.parameters["userId"]?.toIntOrNull() ?: return@delete call.respond(
+        // DELETE /team-members/{id} - delete an existing team member
+        delete("/{id}") {
+            val id = call.parameters["id"]?.toIntOrNull() ?: return@delete call.respond(
                 HttpStatusCode.BadRequest,
-                "Invalid user ID"
+                "Invalid team member ID"
+
             )
-            val teamId = call.parameters["teamId"]?.toIntOrNull() ?: return@delete call.respond(
-                HttpStatusCode.BadRequest,
-                "Invalid team ID"
-            )
-            val joinDate = call.parameters["joinDate"] ?: return@delete call.respond(
-                HttpStatusCode.BadRequest,
-                "Invalid team ID"
-            )
-            if (dao.deleteTeamMember(userId, teamId, joinDate)) {
+            if (dao.deleteTeamMember(id)) {
                 call.respond(HttpStatusCode.OK, "Team member deleted")
             } else {
                 call.respond(HttpStatusCode.NotFound, "Team member not found")
@@ -80,12 +71,10 @@ fun Route.teamMemberRouting() {
         }
         // patch /team-members/{userId}/{teamId}/{joinDate}/ - have a team member leave the team
 
-        patch("/{userId}/{teamId}/{joinDate}") {
-            val userId = call.parameters["userId"]?.toIntOrNull() ?: return@patch call.respond(HttpStatusCode.BadRequest, "Invalid user ID")
-            val teamId = call.parameters["teamId"]?.toIntOrNull() ?: return@patch call.respond(HttpStatusCode.BadRequest, "Invalid team ID")
-            val joinDate = call.parameters["joinDate"] ?: return@patch call.respond(HttpStatusCode.BadRequest, "Invalid join date")
+        patch("/{id}") {
+            val id = call.parameters["id"]?.toIntOrNull() ?: return@patch call.respond(HttpStatusCode.BadRequest, "Invalid team member ID")
             val leaveDate = call.receive<String>()
-            if (dao.leaveTeam(userId, teamId, joinDate, leaveDate)) {
+            if (dao.leaveTeam(id, leaveDate)) {
                 call.respond(HttpStatusCode.OK, "Team member has left the team")
             } else {
                 call.respond(HttpStatusCode.NotFound, "Team member not found")
