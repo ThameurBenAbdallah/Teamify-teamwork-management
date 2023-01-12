@@ -1,6 +1,7 @@
 package com.example.dao
 
 import com.example.models.*
+import com.example.security.hashing.HashingService
 
 interface DAOFacade {
     suspend fun allProjects(): List<Project>
@@ -40,17 +41,24 @@ interface DAOFacade {
         password: String,
         isTeamMember: Boolean,
         isAdmin: Boolean,
-        isManager: Boolean
+        isManager: Boolean,
+        salt: String,
+        hashingService: HashingService
     ): User?
 
     suspend fun editUser(
         id: Int,
         email: String,
         fullName: String,
-        password: String,
         isTeamMember: Boolean,
         isAdmin: Boolean,
-        isManager: Boolean
+        isManager: Boolean,
+    ): Boolean
+    suspend fun editPassword(
+        email: String,
+        password: String,
+        hashingService: HashingService
+
     ): Boolean
 
     suspend fun deleteUser(id: Int): Boolean

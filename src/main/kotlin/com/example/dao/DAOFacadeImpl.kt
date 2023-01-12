@@ -2,6 +2,7 @@ package com.example.dao
 
 import com.example.dao.DatabaseFactory.dbQuery
 import com.example.models.*
+import com.example.security.hashing.HashingService
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -135,7 +136,8 @@ class DAOFacadeImpl : DAOFacade {
         password = row[Users.password],
         isAdmin = row[Users.isAdmin],
         isTeamMember = row[Users.isTeamMember],
-        isManager = row[Users.isManager]
+        isManager = row[Users.isManager],
+        salt = ""
     )
 
     override suspend fun allUsers(): List<User> = dbQuery {
@@ -156,36 +158,52 @@ class DAOFacadeImpl : DAOFacade {
         password: String,
         isTeamMember: Boolean,
         isAdmin: Boolean,
-        isManager: Boolean
-    ): User? = dbQuery {
-        val insertStatement = Users.insert {
-            it[Users.fullName] = fullName
-            it[Users.email] = email
-            it[Users.isAdmin] = isAdmin
-            it[Users.isTeamMember] = isTeamMember
-            it[Users.password] = password
-            it[Users.isManager] = isManager
+        isManager: Boolean,
+        salt : String,
+        hashingService: HashingService
+    ): User?  {
+        val saltedHash= hashingService.generateSaltedHash(password)
+        val user = dbQuery {
+            val insertStatement = Users.insert {
+                it[Users.fullName] = fullName
+                it[Users.email] = email
+                it[Users.isAdmin] = isAdmin
+                it[Users.isTeamMember] = isTeamMember
+                it[Users.password] = saltedHash.hash
+                it[Users.isManager] = isManager
+                it[Users.salt] = saltedHash.salt
 
+            }
+            insertStatement.resultedValues?.singleOrNull()?.let(::resultRowToUser)
         }
-        insertStatement.resultedValues?.singleOrNull()?.let(::resultRowToUser)
+        return user
     }
 
     override suspend fun editUser(
         id: Int,
         email: String,
         fullName: String,
-        password: String,
         isTeamMember: Boolean,
         isAdmin: Boolean,
-        isManager: Boolean
+        isManager: Boolean,
     ): Boolean = Users.update({ Users.id eq id }) {
         it[Users.fullName] = fullName
         it[Users.email] = email
         it[Users.isAdmin] = isAdmin
         it[Users.isTeamMember] = isTeamMember
-        it[Users.password] = password
+
         it[Users.isManager] = isManager
     } > 0
+
+    override suspend fun editPassword(email: String, password: String, hashingService: HashingService): Boolean {
+        val saltedHash = hashingService.generateSaltedHash(password)
+        return Users.update({ Users.email eq email }) {
+            it[Users.password] = saltedHash.hash
+            it[salt] = saltedHash.salt
+        } > 0
+    }
+
+
 
     override suspend fun deleteUser(id: Int): Boolean = dbQuery {
         Users.deleteWhere { Users.id eq id } > 0
@@ -429,7 +447,7 @@ class DAOFacadeImpl : DAOFacade {
     }
 
     override suspend fun deleteTeamMember(id: Int): Boolean = dbQuery {
-        TeamMembers.deleteWhere { TeamMembers.userId eq userId } > 0
+        TeamMembers.deleteWhere { userId eq id } > 0
     }
 
     override suspend fun hasLeftTeam(userId: Int, teamId: Int, joinDate: String): Boolean {
