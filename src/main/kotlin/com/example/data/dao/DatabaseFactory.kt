@@ -1,6 +1,6 @@
-package com.example.dao
+package com.example.data.dao
 
-import com.example.models.*
+import com.example.data.models.*
 import kotlinx.coroutines.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.*

@@ -1,6 +1,6 @@
-package com.example.dao
+package com.example.data.dao
 
-import com.example.models.*
+import com.example.data.models.*
 import com.example.security.hashing.HashingService
 
 interface DAOFacade {
@@ -42,7 +42,6 @@ interface DAOFacade {
         isTeamMember: Boolean,
         isAdmin: Boolean,
         isManager: Boolean,
-        salt: String,
         hashingService: HashingService
     ): User?
 

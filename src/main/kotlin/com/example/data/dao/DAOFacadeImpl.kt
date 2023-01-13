@@ -1,7 +1,7 @@
-package com.example.dao
+package com.example.data.dao
 
-import com.example.dao.DatabaseFactory.dbQuery
-import com.example.models.*
+import com.example.data.dao.DatabaseFactory.dbQuery
+import com.example.data.models.*
 import com.example.security.hashing.HashingService
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.*
@@ -159,7 +159,6 @@ class DAOFacadeImpl : DAOFacade {
         isTeamMember: Boolean,
         isAdmin: Boolean,
         isManager: Boolean,
-        salt : String,
         hashingService: HashingService
     ): User?  {
         val saltedHash= hashingService.generateSaltedHash(password)

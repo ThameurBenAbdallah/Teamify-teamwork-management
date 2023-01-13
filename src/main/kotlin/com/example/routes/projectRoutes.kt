@@ -5,8 +5,8 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 
 
-import com.example.dao.dao
-import com.example.models.Project
+import com.example.data.dao.dao
+import com.example.data.models.Project
 
 import io.ktor.server.request.*
 import io.ktor.server.response.*

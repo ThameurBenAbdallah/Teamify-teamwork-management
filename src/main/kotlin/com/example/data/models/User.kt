@@ -1,4 +1,4 @@
-package com.example.models
+package com.example.data.models
 
 
 import kotlinx.serialization.Serializable
@@ -24,6 +24,9 @@ object Users : Table() {
     val isTeamMember = bool("is_team_member")
     val isAdmin = bool("is_admin")
     val isManager = bool("is_manager")
-    val salt = varchar("salt",300)
+    val salt = varchar("salt",32)
+    init {
+        uniqueIndex(email)
+    }
     override val primaryKey = PrimaryKey(id)
 }

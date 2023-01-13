@@ -6,8 +6,8 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 
 
-import com.example.dao.dao
-import com.example.models.Milestone
+import com.example.data.dao.dao
+import com.example.data.models.Milestone
 
 import io.ktor.server.request.*
 import io.ktor.server.response.*

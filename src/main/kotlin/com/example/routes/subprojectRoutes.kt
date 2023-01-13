@@ -1,7 +1,7 @@
 package com.example.routes
 
-import com.example.dao.dao
-import com.example.models.Subproject
+import com.example.data.dao.dao
+import com.example.data.models.Subproject
 import io.ktor.http.*
 import io.ktor.server.application.*
 
