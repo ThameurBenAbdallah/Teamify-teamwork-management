@@ -1,11 +1,10 @@
 package com.example.routes
 
 
+import com.example.data.dao.DAOFacade
 import io.ktor.http.*
 import io.ktor.server.application.*
 
-
-import com.example.data.dao.dao
 import com.example.data.models.Project
 
 import io.ktor.server.request.*
@@ -13,7 +12,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 
-fun Route.projectRouting() {
+fun Route.projectRouting(dao:DAOFacade) {
 
     get("/projects") {
         val projects = dao.allProjects()

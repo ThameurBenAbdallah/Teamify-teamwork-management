@@ -18,13 +18,13 @@ data class User(
 
 object Users : Table() {
     val id = integer("id").autoIncrement()
-    val email = varchar("name", 128)
-    val fullName = varchar("last_name", 300)
+    val email = varchar("email", 128)
+    val fullName = varchar("full_name", 300)
     val password = varchar("password", 300)
     val isTeamMember = bool("is_team_member")
     val isAdmin = bool("is_admin")
     val isManager = bool("is_manager")
-    val salt = varchar("salt",32)
+    val salt = varchar("salt",300)
     init {
         uniqueIndex(email)
     }

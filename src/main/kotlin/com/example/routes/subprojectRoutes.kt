@@ -1,6 +1,7 @@
 package com.example.routes
 
-import com.example.data.dao.dao
+import com.example.data.dao.DAOFacade
+
 import com.example.data.models.Subproject
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -10,7 +11,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 
-fun Route.subprojectRouting() {
+fun Route.subprojectRouting(dao: DAOFacade) {
     // Récupère tous les sous-projets
     get("/subprojects") {
         val subprojects = dao.allSubprojects()

@@ -33,6 +33,9 @@ interface DAOFacade {
 
     suspend fun deleteMilestone(id: Int): Boolean
 
+
+
+
     suspend fun allUsers(): List<User>
     suspend fun user(id: Int): User?
     suspend fun addNewUser(
@@ -61,6 +64,9 @@ interface DAOFacade {
     ): Boolean
 
     suspend fun deleteUser(id: Int): Boolean
+    suspend fun findUserByEmail(email: String): User?
+
+
 
     suspend fun allSubprojects(): List<Subproject>
     suspend fun subproject(id: Int): Subproject?
@@ -122,10 +128,9 @@ interface DAOFacade {
         role: String,
         isTeamLeader: Boolean,
         joinDate: String,
-        leaveDate: String
-    ): Boolean
+        leaveDate: String): Boolean
 
-    suspend fun deleteTeamMember(id: Int,): Boolean
+    suspend fun deleteTeamMember(id: Int): Boolean
 
     suspend fun hasLeftTeam(userId: Int, teamId: Int, joinDate: String): Boolean
 

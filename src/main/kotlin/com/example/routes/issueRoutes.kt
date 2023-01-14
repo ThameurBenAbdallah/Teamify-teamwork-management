@@ -1,7 +1,7 @@
 package com.example.routes
 
+import com.example.data.dao.DAOFacade
 import io.ktor.server.routing.*
-import com.example.data.dao.dao
 import com.example.data.models.Issue
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -10,7 +10,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 
 
-fun Route.issueRouting() {
+fun Route.issueRouting(dao: DAOFacade) {
     // GET /tasks : List all tasks
 
     get {

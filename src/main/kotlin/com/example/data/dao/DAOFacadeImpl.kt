@@ -137,7 +137,7 @@ class DAOFacadeImpl : DAOFacade {
         isAdmin = row[Users.isAdmin],
         isTeamMember = row[Users.isTeamMember],
         isManager = row[Users.isManager],
-        salt = ""
+        salt = row[Users.salt]
     )
 
     override suspend fun allUsers(): List<User> = dbQuery {
@@ -206,6 +206,13 @@ class DAOFacadeImpl : DAOFacade {
 
     override suspend fun deleteUser(id: Int): Boolean = dbQuery {
         Users.deleteWhere { Users.id eq id } > 0
+    }
+
+    override suspend fun findUserByEmail(email: String): User? = dbQuery {
+        Users
+            .select { Users.email eq email}
+            .map(::resultRowToUser)
+            .singleOrNull()
     }
 
     //Subproject------------------------------------------------------------------------------------------

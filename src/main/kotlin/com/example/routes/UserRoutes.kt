@@ -1,10 +1,11 @@
 package com.example.routes
 
+import com.example.data.dao.DAOFacade
 import io.ktor.http.*
 import io.ktor.server.application.*
 
 
-import com.example.data.dao.dao
+
 import com.example.data.models.User
 import com.example.security.hashing.HashingService
 import io.ktor.server.auth.*
@@ -15,7 +16,7 @@ import io.ktor.server.routing.*
 
 
 fun Route.userRouting(
-    hashingService: HashingService,
+    hashingService: HashingService, dao: DAOFacade
 ) {
     authenticate {
 

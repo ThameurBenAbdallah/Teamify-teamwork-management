@@ -1,7 +1,7 @@
 package com.example.routes
 
 import com.example.data.dao.DAOFacade
-import com.example.data.auth.AuthRequest
+import com.example.data.auth.UpRequest
 import com.example.security.hashing.HashingService
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -14,7 +14,7 @@ fun Route.signUp(
     dao: DAOFacade
 ) {
     post("signup") {
-        val request = call.receiveOrNull<AuthRequest>() ?: return@post call.respond(HttpStatusCode.BadRequest)
+        val request = call.receiveOrNull<UpRequest>() ?: return@post call.respond(HttpStatusCode.BadRequest)
 
         val user = dao.addNewUser(
             email= request.email,
