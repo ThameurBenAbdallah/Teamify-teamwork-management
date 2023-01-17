@@ -1,7 +1,8 @@
 package com.example.routes
 
+import com.example.data.auth.Role
 import com.example.data.dao.DAOFacade
-import com.example.data.auth.UpRequest
+import com.example.data.auth.SignUpRequest
 import com.example.security.hashing.HashingService
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -14,18 +15,16 @@ fun Route.signUp(
     dao: DAOFacade
 ) {
     post("signup") {
-        val request = call.receiveOrNull<UpRequest>() ?: return@post call.respond(HttpStatusCode.BadRequest)
+        val request = call.receiveOrNull<SignUpRequest>() ?: return@post call.respond(HttpStatusCode.BadRequest)
 
         val user = dao.addNewUser(
-            email= request.email,
+            email = request.email,
             fullName = request.fullName,
             password = request.password,
-            isTeamMember = false,
-            isAdmin = true,
-            isManager = false,
-            hashingService= hashingService
+            role = Role.ADMIN,
+            hashingService = hashingService
         )?: return@post call.respond(HttpStatusCode.BadRequest, "Error creating new Admin")
-        call.respondText("Admin created correctly, you can now create users", status = HttpStatusCode.Created)
+        call.respond(HttpStatusCode.Created,"Admin created correctly, you can now create users")
 
 
     }

@@ -8,6 +8,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 
 
+
 fun Application.configureSecurity(config: TokenConfig) {
 
     authentication {
@@ -21,7 +22,8 @@ fun Application.configureSecurity(config: TokenConfig) {
                     .withIssuer(config.issuer)
                     .build()
             )
-            validate { credential ->
+            validate { credential->
+
                 if (credential.payload.audience.contains(config.audience))
                     JWTPrincipal(credential.payload) else null
             }
@@ -29,3 +31,4 @@ fun Application.configureSecurity(config: TokenConfig) {
     }
 
 }
+

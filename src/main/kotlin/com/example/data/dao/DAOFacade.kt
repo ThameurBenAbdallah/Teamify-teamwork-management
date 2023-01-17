@@ -1,5 +1,6 @@
 package com.example.data.dao
 
+import com.example.data.auth.Role
 import com.example.data.models.*
 import com.example.security.hashing.HashingService
 
@@ -42,9 +43,7 @@ interface DAOFacade {
         email: String,
         fullName: String,
         password: String,
-        isTeamMember: Boolean,
-        isAdmin: Boolean,
-        isManager: Boolean,
+        role: Role,
         hashingService: HashingService
     ): User?
 
@@ -52,9 +51,7 @@ interface DAOFacade {
         id: Int,
         email: String,
         fullName: String,
-        isTeamMember: Boolean,
-        isAdmin: Boolean,
-        isManager: Boolean,
+        role: Role
     ): Boolean
     suspend fun editPassword(
         email: String,

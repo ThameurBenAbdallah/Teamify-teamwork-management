@@ -4,11 +4,7 @@ package com.example.routes
 import com.example.data.dao.DAOFacade
 import io.ktor.http.*
 import io.ktor.server.application.*
-
-
-
 import com.example.data.models.TeamMember
-
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*

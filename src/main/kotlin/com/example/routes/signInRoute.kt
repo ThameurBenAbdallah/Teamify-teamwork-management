@@ -8,13 +8,11 @@ import com.example.security.hashing.SaltedHash
 import com.example.security.token.TokenClaim
 import com.example.security.token.TokenConfig
 import com.example.security.token.TokenService
-import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import org.apache.commons.codec.digest.DigestUtils
 
 fun Route.signIn(
     dao: DAOFacade,
@@ -23,12 +21,9 @@ fun Route.signIn(
     tokenConfig: TokenConfig
 ) {
     post("signin") {
-        val request = call.receiveOrNull<AuthRequest>() ?: kotlin.run {
-            call.respond(HttpStatusCode.BadRequest)
-            return@post
-        }
-        println("entered email is : ${request.email}")
-        println("entered password is : ${request.password}")
+        val request = call.receiveOrNull<AuthRequest>() ?: return@post call.respond(HttpStatusCode.BadRequest)
+
+
 
         val user =dao.findUserByEmail(request.email)
         if(user == null) {
@@ -55,7 +50,11 @@ fun Route.signIn(
             config = tokenConfig,
             TokenClaim(
                 name = "userId",
-                value = user.id.toString()
+                value = user.id.toString(),
+            ),
+            TokenClaim(
+                name = "role",
+                value = user.role.name
             )
         )
 

@@ -1,5 +1,6 @@
 package com.example.data.dao
 
+import com.example.data.auth.Role
 import com.example.data.dao.DatabaseFactory.dbQuery
 import com.example.data.models.*
 import com.example.security.hashing.HashingService
@@ -131,12 +132,10 @@ class DAOFacadeImpl : DAOFacade {
 
     private fun resultRowToUser(row: ResultRow) = User(
         id = row[Users.id],
-        fullName = row[Users.fullName],
         email = row[Users.email],
+        fullName = row[Users.fullName],
         password = row[Users.password],
-        isAdmin = row[Users.isAdmin],
-        isTeamMember = row[Users.isTeamMember],
-        isManager = row[Users.isManager],
+        role = Role.valueOf(row[Users.role]),
         salt = row[Users.salt]
     )
 
@@ -156,9 +155,7 @@ class DAOFacadeImpl : DAOFacade {
         email: String,
         fullName: String,
         password: String,
-        isTeamMember: Boolean,
-        isAdmin: Boolean,
-        isManager: Boolean,
+        role: Role,
         hashingService: HashingService
     ): User?  {
         val saltedHash= hashingService.generateSaltedHash(password)
@@ -166,11 +163,9 @@ class DAOFacadeImpl : DAOFacade {
             val insertStatement = Users.insert {
                 it[Users.fullName] = fullName
                 it[Users.email] = email
-                it[Users.isAdmin] = isAdmin
-                it[Users.isTeamMember] = isTeamMember
+                it[Users.role] = role.name
                 it[Users.password] = saltedHash.hash
-                it[Users.isManager] = isManager
-                it[Users.salt] = saltedHash.salt
+                it[salt] = saltedHash.salt
 
             }
             insertStatement.resultedValues?.singleOrNull()?.let(::resultRowToUser)
@@ -182,16 +177,12 @@ class DAOFacadeImpl : DAOFacade {
         id: Int,
         email: String,
         fullName: String,
-        isTeamMember: Boolean,
-        isAdmin: Boolean,
-        isManager: Boolean,
+        role: Role
     ): Boolean = Users.update({ Users.id eq id }) {
         it[Users.fullName] = fullName
         it[Users.email] = email
-        it[Users.isAdmin] = isAdmin
-        it[Users.isTeamMember] = isTeamMember
+        it[Users.role] = role.name
 
-        it[Users.isManager] = isManager
     } > 0
 
     override suspend fun editPassword(email: String, password: String, hashingService: HashingService): Boolean {

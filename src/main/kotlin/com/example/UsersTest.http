@@ -6,10 +6,7 @@ Content-Type: application/json
   "email": "tham@gmail.com",
   "fullName": "Tham B Abdallah",
   "password": "donttellanybody",
-  "isTeamMember": true,
-  "isAdmin": false,
-  "isManager": false
-
+  "role": "MANAGER"
 }
 
 

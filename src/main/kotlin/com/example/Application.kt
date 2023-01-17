@@ -9,6 +9,7 @@ import com.example.security.hashing.SHA256HashingService
 import com.example.security.token.JwtTokenService
 import com.example.security.token.TokenConfig
 
+
 fun main(args: Array<String>): Unit =
     io.ktor.server.netty.EngineMain.main(args)
 
@@ -30,5 +31,6 @@ fun Application.module() {
     configureSecurity(tokenConfig)
     configureRouting(hashingService, dao,tokenService,tokenConfig)
     configureSerialization()
+
 
 }
